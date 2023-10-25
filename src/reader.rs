@@ -50,7 +50,7 @@ pub fn read_list(reader: &mut Reader) -> Result<MalValue> {
     let mut vec = vec![];
     reader.next();
     loop {
-        let token = reader.peek().context("List endded abruptly")?.clone();
+        let token = reader.peek().context("List ended abruptly")?.clone();
         let val = read_form(reader)?;
         if token.contains(")") {
             break;
@@ -71,6 +71,13 @@ pub fn read_atom(reader: &mut Reader) -> Result<MalValue> {
             Ok(MalValue::False)
         } else if let Ok(num) = t.parse::<i64>() {
             Ok(MalValue::Number(num))
+        }
+        // Poor's man string parsing/escape. Should totally change that (will I though?)
+        else if t.starts_with('"') && t.ends_with('"') {
+            let mut escaped = t.clone();
+            escaped.pop();
+            escaped.remove(0);
+            Ok(MalValue::String(escaped))
         } else {
             Ok(MalValue::Sym(t.clone()))
         }
