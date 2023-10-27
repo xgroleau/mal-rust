@@ -7,6 +7,8 @@ pub enum MalValue {
     False,
     Number(i64),
     Sym(String),
+    Keyword(String),
     String(String),
     List(Rc<Vec<MalValue>>),
+    Vec(Rc<Vec<MalValue>>),
 }

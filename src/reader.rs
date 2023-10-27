@@ -46,13 +46,20 @@ pub fn tokenize(str: &str) -> Vec<String> {
         .collect()
 }
 
-pub fn read_list(reader: &mut Reader) -> Result<MalValue> {
+#[derive(Clone, Copy)]
+#[repr(u8)]
+pub enum SequenceDel {
+    List = b')',
+    Vec = b']',
+}
+
+pub fn read_seq(reader: &mut Reader, end: SequenceDel) -> Result<MalValue> {
     let mut vec = vec![];
     reader.next();
     loop {
         let token = reader.peek().context("List ended abruptly")?.clone();
         let val = read_form(reader)?;
-        if token.contains(")") {
+        if token.contains(end as u8 as char) {
             break;
         }
         vec.push(val);
@@ -71,6 +78,10 @@ pub fn read_atom(reader: &mut Reader) -> Result<MalValue> {
             Ok(MalValue::False)
         } else if let Ok(num) = t.parse::<i64>() {
             Ok(MalValue::Number(num))
+        } else if t.starts_with(':') {
+            let mut escaped = t.clone();
+            escaped.pop();
+            Ok(MalValue::Keyword(escaped))
         }
         // Poor's man string parsing/escape. Should totally change that (will I though?)
         else if t.starts_with('"') && t.ends_with('"') {
@@ -90,7 +101,8 @@ pub fn read_form(reader: &mut Reader) -> Result<MalValue> {
     let token = reader.peek();
     match token {
         Some(t) => match t.chars().next() {
-            Some('(') => read_list(reader),
+            Some('(') => read_seq(reader, SequenceDel::List),
+            Some('[') => read_seq(reader, SequenceDel::Vec),
             _ => read_atom(reader),
         },
         None => Ok(MalValue::Nil),

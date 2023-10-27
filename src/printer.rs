@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::types::MalValue;
 
 pub fn pr_str(val: &MalValue) -> String {
@@ -8,9 +10,13 @@ pub fn pr_str(val: &MalValue) -> String {
         MalValue::Number(num) => num.to_string(),
         MalValue::Sym(sym) => sym.clone(),
         MalValue::String(val) => format!("\"{}\"", val),
-        MalValue::List(list) => {
-            let vec: Vec<String> = list.iter().map(|v| pr_str(v)).collect();
-            format!("({})", vec.join(" "))
-        }
+        MalValue::Keyword(val) => format!(":{}", val),
+        MalValue::List(list) => pr_seq(list.clone(), '(', ')'),
+        MalValue::Vec(list) => pr_seq(list.clone(), '[', ']'),
     }
+}
+
+pub fn pr_seq(vals: Rc<Vec<MalValue>>, start: char, end: char) -> String {
+    let vec: Vec<String> = vals.iter().map(|v| pr_str(v)).collect();
+    format!("{}{}{}", start, vec.join(" "), end)
 }
