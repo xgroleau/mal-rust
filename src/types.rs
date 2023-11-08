@@ -1,3 +1,4 @@
+use crate::Result;
 use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -11,4 +12,5 @@ pub enum MalValue {
     String(String),
     List(Rc<Vec<MalValue>>),
     Vec(Rc<Vec<MalValue>>),
+    Function(fn(&Vec<MalValue>) -> Result<MalValue>),
 }

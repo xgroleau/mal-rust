@@ -1,64 +1,44 @@
-use std::collections::HashMap;
+use crate::types::MalValue;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::{printer::pr_str, types::MalValue};
-use anyhow::{anyhow, Result};
-
-pub type MalFn = Box<dyn FnOnce(&Vec<MalValue>) -> Result<MalValue>>;
+// pub type MalFn = Box<dyn FnOnce(&Vec<MalValue>) -> Result<MalValue>>;
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Env {
-    funcs: HashMap<String, MalFn>,
+    parent: Option<Rc<Env>>,
+    data: RefCell<HashMap<String, MalValue>>,
 }
 
 impl Env {
-    /// Creates a new [Self] with some base function
-    pub fn base() -> Self {
-        let mut env = Self {
-            funcs: HashMap::new(),
-        };
-        env.funcs.insert("+".into(), Box::new(add));
-        env.funcs.insert("-".into(), Box::new(sub));
-        env.funcs.insert("*".into(), Box::new(mult));
-        env.funcs.insert("/".into(), Box::new(div));
-        env
+    /// Creates a new [Self]
+    pub fn new() -> Self {
+        Self {
+            parent: None,
+            data: RefCell::default(),
+        }
+    }
+
+    pub fn new_child(parent: Rc<Self>) -> Self {
+        Self {
+            parent: Some(parent),
+            data: RefCell::default(),
+        }
     }
 }
 
-pub fn add(args: &Vec<MalValue>) -> Result<MalValue> {
-    match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l + r)),
-        [MalValue::String(l), MalValue::String(r)] => Ok(MalValue::String(l.to_owned() + r)),
-        a => Err(anyhow!(
-            "Cannot add args: {:?}",
-            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
-        )),
+pub fn env_set(env: &Rc<Env>, sym: String, val: MalValue) {
+    env.data.borrow_mut().insert(sym, val);
+}
+
+pub fn env_find(env: &Rc<Env>, sym: &String) -> Option<Rc<Env>> {
+    if env.data.borrow().contains_key(sym) {
+        Some(env.clone())
+    } else {
+        env.parent.clone().map(|p| env_find(&p, sym)).flatten()
     }
 }
 
-pub fn sub(args: &Vec<MalValue>) -> Result<MalValue> {
-    match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l - r)),
-        a => Err(anyhow!(
-            "Cannot sub args: {:?}",
-            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
-        )),
-    }
-}
-
-pub fn mult(args: &Vec<MalValue>) -> Result<MalValue> {
-    match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l * r)),
-        a => Err(anyhow!(
-            "Cannot mult args: {:?}",
-            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
-        )),
-    }
-}
-
-pub fn div(args: &Vec<MalValue>) -> Result<MalValue> {
-    match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
-        a => Err(anyhow!(
-            "Cannot div args: {:?}",
-            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
-        )),
-    }
+pub fn env_get(env: &Rc<Env>, sym: &String) -> Option<MalValue> {
+    let env = env_find(env, sym)?;
+    let val = env.data.borrow().get(sym).cloned();
+    val
 }

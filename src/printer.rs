@@ -13,6 +13,7 @@ pub fn pr_str(val: &MalValue) -> String {
         MalValue::Keyword(val) => format!(":{}", val),
         MalValue::List(list) => pr_seq(list.clone(), '(', ')'),
         MalValue::Vec(list) => pr_seq(list.clone(), '[', ']'),
+        MalValue::Function(fun) => format!("<fn {:?}>", fun),
     }
 }
 
