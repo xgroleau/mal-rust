@@ -15,10 +15,14 @@ pub type Env = HashMap<String, MalValue>;
 
 fn eval_ast(env: &mut Env, ast: &MalValue) -> Result<MalValue> {
     match ast {
-        MalValue::Sym(s) => env.get(s).cloned().context("Symbol not found"),
-        MalValue::List(list) => Ok(MalValue::List(Rc::new(
-            list.iter().map(|v| eval(env, v).unwrap()).collect(),
-        ))),
+        MalValue::Sym(s) => env
+            .get(s)
+            .cloned()
+            .context(anyhow!("Symbol: '{}' not found", s)),
+        MalValue::List(list) => {
+            let val = list.iter().map(|v| eval(env, v)).collect::<Result<_>>()?;
+            Ok(MalValue::List(Rc::new(val)))
+        }
         v => Ok(v.clone()),
     }
 }
@@ -65,8 +69,11 @@ fn main() -> Result<()> {
                 if line.len() > 0 {
                     match reader::read_str(&line) {
                         Ok(ast) => {
-                            let val = eval(&mut env, &ast)?;
-                            println!("{}", pr_str(&val));
+                            let val = eval(&mut env, &ast);
+                            match val {
+                                Ok(v) => println!("{}", pr_str(&v)),
+                                Err(e) => println!("Error {}", e),
+                            }
                         }
                         Err(e) => println!("Error: {}", e),
                     }
@@ -76,7 +83,6 @@ fn main() -> Result<()> {
             Err(ReadlineError::Eof) => break,
             Err(err) => {
                 println!("Error: {:?}", err);
-                break;
             }
         }
     }
