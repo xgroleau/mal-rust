@@ -1,6 +1,6 @@
 use crate::Result;
 use anyhow::anyhow;
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum MalValue {
@@ -13,6 +13,7 @@ pub enum MalValue {
     String(String),
     List(Rc<Vec<MalValue>>),
     Vec(Rc<Vec<MalValue>>),
+    Map(Rc<HashMap<String, MalValue>>),
     Function(fn(&Vec<MalValue>) -> Result<MalValue>),
 }
 
