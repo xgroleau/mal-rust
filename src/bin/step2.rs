@@ -67,14 +67,13 @@ fn main() -> Result<()> {
                 rl.add_history_entry(&line)?;
                 rl.save_history(".mal-history")?;
                 if line.len() > 0 {
-                    match reader::read_str(&line) {
-                        Ok(ast) => {
-                            let val = eval(&mut env, &ast);
-                            match val {
-                                Ok(v) => println!("{}", pr_str(&v)),
-                                Err(e) => println!("Error {}", e),
-                            }
-                        }
+                    let res = match reader::read_str(&line) {
+                        Ok(ast) => eval(&mut env, &ast),
+                        Err(e) => Err(e),
+                    };
+
+                    match res {
+                        Ok(v) => println!("{}", pr_str(&v)),
                         Err(e) => println!("Error: {}", e),
                     }
                 }
