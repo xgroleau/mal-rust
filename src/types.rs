@@ -1,4 +1,5 @@
 use crate::Result;
+use anyhow::anyhow;
 use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -13,4 +14,13 @@ pub enum MalValue {
     List(Rc<Vec<MalValue>>),
     Vec(Rc<Vec<MalValue>>),
     Function(fn(&Vec<MalValue>) -> Result<MalValue>),
+}
+
+impl MalValue {
+    pub fn apply(&self, args: Rc<Vec<MalValue>>) -> Result<MalValue> {
+        match self {
+            MalValue::Function(f) => f(&args),
+            _ => Err(anyhow!("Cannot evaluate anything other than a function")),
+        }
+    }
 }
