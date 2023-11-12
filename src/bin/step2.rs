@@ -27,6 +27,16 @@ fn eval_ast(env: &mut Env, ast: &MalValue) -> Result<MalValue> {
             let val = vec.iter().map(|v| eval(env, v)).collect::<Result<_>>()?;
             Ok(MalValue::Vec(Rc::new(val)))
         }
+        MalValue::Map(map) => {
+            let val = map
+                .iter()
+                .map(|(k, v)| {
+                    let val = eval(env, v)?;
+                    Ok((k.clone(), val))
+                })
+                .collect::<Result<HashMap<String, MalValue>>>()?;
+            Ok(MalValue::Map(Rc::new(val)))
+        }
         v => Ok(v.clone()),
     }
 }

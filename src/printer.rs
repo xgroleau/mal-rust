@@ -16,9 +16,9 @@ pub fn pr_str(val: &MalValue) -> String {
         MalValue::Map(map) => {
             let val: Vec<_> = map
                 .iter()
-                .map(|(k, v)| format!("{}: {},", k, pr_str(v)))
+                .map(|(k, v)| format!("{} {}", k, pr_str(v)))
                 .collect();
-            format!("{{ {} }}", val)
+            format!("{{{}}}", val.join(" "))
         }
         MalValue::Function(fun) => format!("<fn {:?}>", fun),
     }
