@@ -83,7 +83,7 @@ pub fn hash_map(vec: Vec<MalValue>) -> Result<MalValue> {
         .tuples()
         .map(|(k, v)| match k {
             MalValue::String(s) => Ok((format!("\"{}\"", s), v)),
-            MalValue::Keyword(s) => Ok((format!(":{}", s), v)),
+            MalValue::Atom(s) => Ok((format!(":{}", s), v)),
             _ => Err(anyhow!("key is not string")),
         })
         .collect();
@@ -105,7 +105,7 @@ pub fn read_atom(reader: &mut Reader) -> Result<MalValue> {
         } else if t.starts_with(':') {
             let mut escaped = t.clone();
             escaped.remove(0);
-            Ok(MalValue::Keyword(escaped))
+            Ok(MalValue::Atom(escaped))
         }
         // Poor's man string parsing/escape. Should totally change that (will I though?)
         else if t.starts_with('"') && t.ends_with('"') {

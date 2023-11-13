@@ -10,7 +10,7 @@ pub fn pr_str(val: &MalValue) -> String {
         MalValue::Number(num) => num.to_string(),
         MalValue::Sym(sym) => sym.clone(),
         MalValue::String(val) => format!("\"{}\"", val),
-        MalValue::Keyword(val) => format!(":{}", val),
+        MalValue::Atom(val) => format!(":{}", val),
         MalValue::List(list) => pr_seq(list.clone(), '(', ')'),
         MalValue::Vec(list) => pr_seq(list.clone(), '[', ']'),
         MalValue::Map(map) => {

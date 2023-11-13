@@ -1,4 +1,6 @@
-use crate::types::MalValue;
+use crate::Result;
+use crate::{printer::pr_str, types::MalValue};
+use anyhow::anyhow;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 // pub type MalFn = Box<dyn FnOnce(&Vec<MalValue>) -> Result<MalValue>>;
@@ -25,8 +27,21 @@ impl Env {
     }
 }
 
-pub fn env_set(env: &Rc<Env>, sym: String, val: MalValue) {
+pub fn env_set_sym(env: &Rc<Env>, sym: String, val: MalValue) {
     env.data.borrow_mut().insert(sym, val);
+}
+
+pub fn env_set(env: &Rc<Env>, key: &MalValue, val: MalValue) -> Result<()> {
+    match key {
+        MalValue::Sym(sym) => {
+            env_set_sym(env, sym.to_string(), val);
+            Ok(())
+        }
+        v => Err(anyhow!(
+            "Invalid key to set from environment: {}",
+            pr_str(v)
+        )),
+    }
 }
 
 pub fn env_find(env: &Rc<Env>, sym: &String) -> Option<Rc<Env>> {
@@ -37,8 +52,18 @@ pub fn env_find(env: &Rc<Env>, sym: &String) -> Option<Rc<Env>> {
     }
 }
 
-pub fn env_get(env: &Rc<Env>, sym: &String) -> Option<MalValue> {
+pub fn env_get_sym(env: &Rc<Env>, sym: &String) -> Option<MalValue> {
     let env = env_find(env, sym)?;
     let val = env.data.borrow().get(sym).cloned();
     val
+}
+
+pub fn env_get(env: &Rc<Env>, key: &MalValue) -> Result<Option<MalValue>> {
+    match key {
+        MalValue::Sym(sym) => Ok(env_get_sym(env, sym)),
+        v => Err(anyhow!(
+            "Invalid key to get from environment: {}",
+            pr_str(v)
+        )),
+    }
 }
