@@ -1,4 +1,7 @@
-use crate::Result;
+use crate::{
+    printer::{pr_seq, pr_str},
+    Result,
+};
 use anyhow::anyhow;
 use std::{collections::HashMap, rc::Rc};
 
@@ -21,7 +24,11 @@ impl MalValue {
     pub fn apply(&self, args: Rc<Vec<MalValue>>) -> Result<MalValue> {
         match self {
             MalValue::Function(f) => f(&args),
-            _ => Err(anyhow!("Cannot evaluate anything other than a function")),
+            v => Err(anyhow!(
+                "Cannot evaluate anything other than a function: {}, {}",
+                pr_str(v),
+                pr_seq(args, '|', '|')
+            )),
         }
     }
 }

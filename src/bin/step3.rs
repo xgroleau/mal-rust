@@ -53,23 +53,24 @@ fn eval(env: &mut Rc<Env>, ast: &MalValue) -> Result<MalValue> {
                                 return Err(anyhow!("Too many arguemnts to def"));
                             }
                             let val = eval(env, &tail[1])?;
-                            env_set(env, &tail[0], val)?;
-                            Ok(tail[1].clone())
+                            env_set(env, &tail[0], val.clone())?;
+                            Ok(val)
                         }
                         "let*" => {
                             if tail.len() > 3 {
                                 return Err(anyhow!("Too many arguemnts to let"));
                             }
-                            let mut new_env = let_binding(env.clone(), &tail[1])?;
-                            eval(&mut new_env, &tail[1])?;
-                            Ok(MalValue::Nil)
+                            let mut new_env = let_binding(env.clone(), &tail[0])?;
+                            eval(&mut new_env, &tail[1])
                         }
-                        s => Err(anyhow!("Unkown symbol to evaluate: {}", s)),
+                        _ => match eval_ast(env, ast)? {
+                            MalValue::List(l) | MalValue::Vec(l) => {
+                                l[0].apply(Rc::new(l[1..].to_vec()))
+                            }
+                            _ => Err(anyhow!("Didn't receive list after evaluating list")),
+                        },
                     },
-                    _ => match eval_ast(env, ast)? {
-                        MalValue::List(l) => l[0].apply(Rc::new(l[1..].to_vec())),
-                        _ => Err(anyhow!("Didn't receive list after evaluating list")),
-                    },
+                    _ => eval_ast(env, ast),
                 }
             }
         }
@@ -79,7 +80,7 @@ fn eval(env: &mut Rc<Env>, ast: &MalValue) -> Result<MalValue> {
 
 fn let_binding(env: Rc<Env>, bindings: &MalValue) -> Result<Rc<Env>> {
     match bindings {
-        MalValue::List(bindings) => {
+        MalValue::List(bindings) | MalValue::Vec(bindings) => {
             let mut new_env = Rc::new(Env::new_child(env));
             if bindings.len() % 2 != 0 {
                 return Err(anyhow!(
@@ -107,7 +108,7 @@ fn main() -> Result<()> {
 
     let mut env = Rc::new(Env::new());
     env_set_sym(&env, "+".to_string(), MalValue::Function(base_fn::add));
-    env_set_sym(&env, "-".to_string(), MalValue::Function(base_fn::add));
+    env_set_sym(&env, "-".to_string(), MalValue::Function(base_fn::sub));
     env_set_sym(&env, "*".to_string(), MalValue::Function(base_fn::mult));
     env_set_sym(&env, "/".to_string(), MalValue::Function(base_fn::div));
 
