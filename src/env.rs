@@ -52,6 +52,30 @@ pub fn env_find(env: &Rc<Env>, sym: &String) -> Option<Rc<Env>> {
     }
 }
 
+pub fn env_bind(env: &Rc<Env>, bindings: &MalValue, exps: Rc<Vec<MalValue>>) -> Result<Rc<Env>> {
+    match bindings {
+        MalValue::List(bindings) | MalValue::Vec(bindings) => {
+            if bindings.len() != exps.len() {
+                return Err(anyhow!(
+                    "Bindings doesn't match the number of expr: {} vs {}",
+                    bindings.len(),
+                    exps.len()
+                ));
+            }
+
+            let env = Rc::new(Env::new_child(env.clone()));
+            for (i, b) in bindings.iter().enumerate() {
+                env_set(&env, b, exps[i].clone())?;
+            }
+            Ok(env)
+        }
+        v => Err(anyhow!(
+            "Invalid binding, needs to be a vector: {}",
+            pr_str(&v)
+        )),
+    }
+}
+
 pub fn env_get_sym(env: &Rc<Env>, sym: &String) -> Option<MalValue> {
     let env = env_find(env, sym)?;
     let val = env.data.borrow().get(sym).cloned();

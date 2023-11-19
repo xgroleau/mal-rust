@@ -21,6 +21,17 @@ pub fn pr_str(val: &MalValue) -> String {
             format!("{{{}}}", val.join(" "))
         }
         MalValue::Function(fun) => format!("<fn {:?}>", fun),
+        MalValue::Closure {
+            func,
+            env: _,
+            ast,
+            params,
+        } => format!(
+            "<closure {:?}: {}, {}>",
+            func,
+            pr_str(&ast),
+            pr_str(&params)
+        ),
     }
 }
 

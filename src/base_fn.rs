@@ -41,3 +41,99 @@ pub fn div(args: &Vec<MalValue>) -> Result<MalValue> {
         )),
     }
 }
+
+pub fn prn(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+
+pub fn list(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+
+pub fn is_list(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+
+pub fn is_empty(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+
+pub fn count(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+pub fn eq(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+
+pub fn lt_eq(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+pub fn lt(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+pub fn gt(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
+pub fn gt_eq(args: &Vec<MalValue>) -> Result<MalValue> {
+    match &args[..] {
+        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        a => Err(anyhow!(
+            "Cannot div args: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
+    }
+}
