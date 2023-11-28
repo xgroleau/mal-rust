@@ -89,6 +89,7 @@ fn eval(env: &mut Rc<Env>, ast: &MalValue) -> Result<MalValue> {
                             let env = Rc::new(Env::new_child(env.clone()));
                             let ast = Rc::new(tail[0].clone());
                             let params = Rc::new(tail[1].clone());
+
                             Ok(MalValue::Closure {
                                 func: eval,
                                 env,
@@ -103,7 +104,13 @@ fn eval(env: &mut Rc<Env>, ast: &MalValue) -> Result<MalValue> {
                             _ => Err(anyhow!("Didn't receive list after evaluating list")),
                         },
                     },
-                    _ => eval_ast(env, ast),
+                    _ => match eval_ast(env, ast)? {
+                        MalValue::List(l) => {
+                            let ref f = l[0].clone();
+                            f.apply(Rc::new(l[1..].to_vec()))
+                        }
+                        _ => Err(anyhow!("Need to evaluate a list")),
+                    },
                 }
             }
         }

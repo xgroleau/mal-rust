@@ -57,9 +57,9 @@ pub fn env_bind(env: &Rc<Env>, bindings: &MalValue, exps: Rc<Vec<MalValue>>) -> 
         MalValue::List(bindings) | MalValue::Vec(bindings) => {
             if bindings.len() != exps.len() {
                 return Err(anyhow!(
-                    "Bindings doesn't match the number of expr: {} vs {}",
-                    bindings.len(),
-                    exps.len()
+                    "Bindings doesn't match the number of expr: {:?} vs {:?}",
+                    bindings,
+                    exps
                 ));
             }
 
