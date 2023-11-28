@@ -75,14 +75,14 @@ fn eval(env: &mut Rc<Env>, ast: &MalValue) -> Result<MalValue> {
                                 return Err(anyhow!("Invalid number of arguemnts to if"));
                             }
                             let res = eval(env, &tail[0])?;
-                            if res == MalValue::False {
+                            if res == MalValue::False || res == MalValue::Nil {
                                 let val = tail.get(2).unwrap_or(&MalValue::Nil);
                                 eval(env, &val)
                             } else {
                                 eval(env, &tail[1])
                             }
                         }
-                        "fn" => {
+                        "fn*" => {
                             if tail.len() != 2 {
                                 return Err(anyhow!("Invalid number of arguments for fn"));
                             }
@@ -144,6 +144,28 @@ fn main() -> Result<()> {
     env_set_sym(&env, "-".to_string(), MalValue::Function(base_fn::sub));
     env_set_sym(&env, "*".to_string(), MalValue::Function(base_fn::mult));
     env_set_sym(&env, "/".to_string(), MalValue::Function(base_fn::div));
+    env_set_sym(&env, "prn".to_string(), MalValue::Function(base_fn::prn));
+    env_set_sym(&env, "list".to_string(), MalValue::Function(base_fn::list));
+    env_set_sym(
+        &env,
+        "list?".to_string(),
+        MalValue::Function(base_fn::is_list),
+    );
+    env_set_sym(
+        &env,
+        "empty?".to_string(),
+        MalValue::Function(base_fn::is_empty),
+    );
+    env_set_sym(
+        &env,
+        "count".to_string(),
+        MalValue::Function(base_fn::count),
+    );
+    env_set_sym(&env, "=".to_string(), MalValue::Function(base_fn::eq));
+    env_set_sym(&env, "<".to_string(), MalValue::Function(base_fn::lt));
+    env_set_sym(&env, "<=".to_string(), MalValue::Function(base_fn::lt_eq));
+    env_set_sym(&env, ">".to_string(), MalValue::Function(base_fn::gt));
+    env_set_sym(&env, ">=".to_string(), MalValue::Function(base_fn::gt_eq));
 
     loop {
         let readline = rl.readline("mal-rs> ");

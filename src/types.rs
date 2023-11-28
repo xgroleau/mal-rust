@@ -48,3 +48,12 @@ impl MalValue {
         }
     }
 }
+
+impl From<bool> for MalValue {
+    fn from(value: bool) -> Self {
+        match value {
+            true => MalValue::True,
+            false => MalValue::False,
+        }
+    }
+}

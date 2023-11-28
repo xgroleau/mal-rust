@@ -68,10 +68,7 @@ pub fn is_list(args: &Vec<MalValue>) -> Result<MalValue> {
 
 pub fn is_empty(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::List(l)] => match l.is_empty() {
-            true => Ok(MalValue::True),
-            false => Ok(MalValue::False),
-        },
+        [MalValue::List(l)] => Ok(l.is_empty().into()),
         a => Err(anyhow!(
             "Cannot check is empty, too many args or not a list: {:?}",
             a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
@@ -82,17 +79,14 @@ pub fn is_empty(args: &Vec<MalValue>) -> Result<MalValue> {
 pub fn count(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
         [MalValue::List(l)] => Ok(MalValue::Number(l.len() as i64)),
-        a => Err(anyhow!(
-            "Cannot get the count of  args: {:?}",
-            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
-        )),
+        _a => Ok(MalValue::Number(0)),
     }
 }
 pub fn eq(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        [l, r] => Ok((l == r).into()),
         a => Err(anyhow!(
-            "Cannot div args: {:?}",
+            "Cannot equal args when more than 2: {:?}",
             a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
         )),
     }
@@ -100,32 +94,36 @@ pub fn eq(args: &Vec<MalValue>) -> Result<MalValue> {
 
 pub fn lt_eq(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        [MalValue::Number(l), MalValue::Number(r)] => Ok((l <= r).into()),
+        a => Err(anyhow!(
+            "Cannot lt_eq than on: {:?}",
+            a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
+        )),
     }
 }
 pub fn lt(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        [MalValue::Number(l), MalValue::Number(r)] => Ok((l < r).into()),
         a => Err(anyhow!(
-            "Cannot div args: {:?}",
+            "Cannot lt than on: {:?}",
             a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
         )),
     }
 }
 pub fn gt(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        [MalValue::Number(l), MalValue::Number(r)] => Ok((l > r).into()),
         a => Err(anyhow!(
-            "Cannot div args: {:?}",
+            "Cannot gt than on: {:?}",
             a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
         )),
     }
 }
 pub fn gt_eq(args: &Vec<MalValue>) -> Result<MalValue> {
     match &args[..] {
-        [MalValue::Number(l), MalValue::Number(r)] => Ok(MalValue::Number(l / r)),
+        [MalValue::Number(l), MalValue::Number(r)] => Ok((l >= r).into()),
         a => Err(anyhow!(
-            "Cannot div args: {:?}",
+            "Cannot gt_eq than on: {:?}",
             a.iter().map(|v| pr_str(v)).collect::<Vec<_>>()
         )),
     }
